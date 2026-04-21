@@ -1,24 +1,21 @@
-using System.Collections;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class LoopTimerManager : MonoBehaviour
 {
     [Header("Timer Settings")]
-    public float loopDurationSeconds = 600f;   // 10 minutes default
+    public float loopDurationSeconds = 600f;
     public bool startOnPlay = true;
 
     [Header("UI Reference")]
-    public TMP_Text clockDisplay;        // Drag your TMP text here
-
-    [Header("Player Reset")]
-    public Transform player;                    // Drag your player here
-    public Transform playerStartPosition;       // Empty GameObject at spawn point
+    public TMP_Text clockDisplay;
 
     [Header("Visual Warning")]
     public Color normalColor = Color.white;
-    public Color warningColor = Color.red;      // Flashes red in last 30 seconds
+    public Color warningColor = Color.red;
     public float warningThreshold = 30f;
 
     private float timeRemaining;
@@ -39,7 +36,6 @@ public class LoopTimerManager : MonoBehaviour
 
         UpdateClockDisplay();
 
-        // Warning flash in last X seconds
         if (timeRemaining <= warningThreshold && !isFlashing)
         {
             isFlashing = true;
@@ -67,41 +63,18 @@ public class LoopTimerManager : MonoBehaviour
     {
         isRunning = false;
         isFlashing = false;
-        StartCoroutine(ResetSequence());
+        StartCoroutine(ResetScene());
     }
 
-    IEnumerator ResetSequence()
+    IEnumerator ResetScene()
     {
-        // Flash effect before reset
         if (clockDisplay != null)
             clockDisplay.color = warningColor;
 
         yield return new WaitForSeconds(0.5f);
 
-        // Reset player position
-        if (player != null && playerStartPosition != null)
-        {
-            // Disable controller briefly to prevent physics conflicts
-            CharacterController cc = player.GetComponent<CharacterController>();
-            if (cc != null) cc.enabled = false;
-
-            player.position = playerStartPosition.position;
-            player.rotation = playerStartPosition.rotation;
-
-            if (cc != null) cc.enabled = true;
-        }
-
-        // Broadcast reset event to all other scripts
-        // Any script can listen with: void OnLoopReset() { }
-        BroadcastMessage("OnLoopReset", SendMessageOptions.DontRequireReceiver);
-
-        // Reset timer
-        timeRemaining = loopDurationSeconds;
-
-        if (clockDisplay != null)
-            clockDisplay.color = normalColor;
-
-        isRunning = true;
+        // 🔁 RELOAD ENTIRE SCENE (full reset)
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     IEnumerator FlashWarning()
@@ -110,15 +83,16 @@ public class LoopTimerManager : MonoBehaviour
         {
             if (clockDisplay != null)
                 clockDisplay.color = warningColor;
+
             yield return new WaitForSeconds(0.4f);
 
             if (clockDisplay != null)
                 clockDisplay.color = normalColor;
+
             yield return new WaitForSeconds(0.4f);
         }
     }
 
-    // Call these from other scripts or buttons if needed
     public void StartTimer() => isRunning = true;
     public void StopTimer() => isRunning = false;
     public void SetTime(float seconds) { timeRemaining = seconds; }
