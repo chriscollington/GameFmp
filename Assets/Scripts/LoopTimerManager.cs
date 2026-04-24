@@ -73,7 +73,7 @@ public class LoopTimerManager : MonoBehaviour
 
         yield return new WaitForSeconds(0.5f);
 
-        // 🔁 RELOAD ENTIRE SCENE (full reset)
+        //  RELOAD ENTIRE SCENE (full reset)
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 

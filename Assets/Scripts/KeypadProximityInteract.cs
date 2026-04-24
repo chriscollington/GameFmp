@@ -50,13 +50,13 @@ public class KeypadProximityInteract : MonoBehaviour
         if (playerTransform == null || playerCamera == null || keypadSystem == null)
             return;
 
-        // 👇 SAME as your door system
+        //  SAME as your door system
         Vector3 checkPosition = transform.position + transform.TransformDirection(interactionOffset);
 
         float distance = Vector3.Distance(playerTransform.position, checkPosition);
         bool isNear = distance <= interactDistance;
 
-        // 👇 SAME look logic as door
+        //  SAME look logic as door
         Vector3 dirToKeypad = (checkPosition - playerCamera.transform.position).normalized;
         float dot = Vector3.Dot(playerCamera.transform.forward, dirToKeypad);
         bool isLooking = dot > lookThreshold;

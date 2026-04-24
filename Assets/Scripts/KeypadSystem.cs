@@ -11,6 +11,13 @@ public class KeypadSystem : MonoBehaviour
     public TMP_Text displayText;
     public Button exitButton;
 
+    [Header("Interaction")]
+    public float interactDistance = 3f;
+    public KeyCode interactKey = KeyCode.E;
+
+    [Header("UI Prompt (ROOT OBJECT)")]
+    public GameObject interactText;
+
     [Header("Target")]
     public GameObject wallToDisable;
 
@@ -20,6 +27,9 @@ public class KeypadSystem : MonoBehaviour
     private string currentInput = "";
     private bool isOpen = false;
 
+    private Transform player;
+    private Camera cam;
+
     void Start()
     {
         keypadUI.SetActive(false);
@@ -27,12 +37,62 @@ public class KeypadSystem : MonoBehaviour
 
         exitButton.onClick.AddListener(CloseKeypad);
         UpdateDisplay();
+
+        player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        cam = Camera.main;
+
+        if (interactText != null)
+        {
+            interactText.SetActive(false);
+
+            // 🔥 ensure children (Text TMP) also follow state
+            foreach (Transform child in interactText.transform)
+                child.gameObject.SetActive(false);
+        }
     }
 
-    // ❌ NO INPUT HERE ANYMORE
     void Update()
     {
-        // handled by interaction script only
+        if (player == null || cam == null || isOpen) return;
+
+        // 🔥 REAL INTERACTION POINT = collider center
+        Collider col = GetComponent<Collider>();
+        Vector3 targetPoint = col != null ? col.bounds.center : transform.position;
+
+        float distance = Vector3.Distance(player.position, targetPoint);
+        bool isNear = distance <= interactDistance;
+
+        // 🔥 FIXED: proper raycast interaction (no angle bugs)
+        Ray ray = new Ray(cam.transform.position, cam.transform.forward);
+
+        bool isLooking =
+            Physics.Raycast(ray, out RaycastHit hit, interactDistance) &&
+            hit.transform == transform;
+
+        if (isNear && isLooking)
+        {
+            ShowInteractUI(true);
+
+            if (Input.GetKeyDown(interactKey))
+            {
+                OpenKeypad();
+            }
+        }
+        else
+        {
+            ShowInteractUI(false);
+        }
+    }
+
+    void ShowInteractUI(bool state)
+    {
+        if (interactText == null) return;
+
+        interactText.SetActive(state);
+
+        // 🔥 fix Text not showing bug
+        foreach (Transform child in interactText.transform)
+            child.gameObject.SetActive(state);
     }
 
     void GenerateKeypad()
@@ -94,10 +154,12 @@ public class KeypadSystem : MonoBehaviour
 
     public void OpenKeypad()
     {
-        if (isOpen) return; // extra safety
+        if (isOpen) return;
 
         keypadUI.SetActive(true);
         isOpen = true;
+
+        ShowInteractUI(false);
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;

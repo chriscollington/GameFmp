@@ -10,6 +10,10 @@ public class DoorController : MonoBehaviour
     public float interactDistance = 3f;
     public KeyCode interactKey = KeyCode.F;
 
+    [Header("Lock Settings")]
+    public bool isLocked = true;
+    public string requiredItemID = "red_key";
+
     [Header("Axis")]
     public Vector3 rotationAxis = Vector3.up;
 
@@ -18,10 +22,11 @@ public class DoorController : MonoBehaviour
 
     [Header("Look Settings")]
     [Range(0f, 1f)]
-    public float lookThreshold = 0.7f; // higher = more precise (0.7–0.9 is good)
+    public float lookThreshold = 0.7f;
 
-    [Header("UI Prompt (Shared)")]
-    public GameObject interactText;
+    [Header("UI Prompts")]
+    public GameObject openText;    // "Press F to open"
+    public GameObject lockedText;  // "Can't open"
 
     private static DoorController currentDoor;
 
@@ -43,12 +48,11 @@ public class DoorController : MonoBehaviour
 
         playerCamera = Camera.main;
 
-        if (interactText != null)
-            interactText.SetActive(false);
+        if (openText != null)
+            openText.SetActive(false);
 
-        Text txt = interactText != null ? interactText.GetComponent<Text>() : null;
-        if (txt != null)
-            txt.text = "Press " + interactKey.ToString() + " to Open";
+        if (lockedText != null)
+            lockedText.SetActive(false);
     }
 
     void Update()
@@ -60,7 +64,6 @@ public class DoorController : MonoBehaviour
         float distance = Vector3.Distance(playerTransform.position, checkPosition);
         bool isNear = distance <= interactDistance;
 
-        // 👇 Check if player is LOOKING at the door
         Vector3 dirToDoor = (checkPosition - playerCamera.transform.position).normalized;
         float dot = Vector3.Dot(playerCamera.transform.forward, dirToDoor);
         bool isLooking = dot > lookThreshold;
@@ -69,37 +72,74 @@ public class DoorController : MonoBehaviour
         {
             currentDoor = this;
 
-            if (interactText != null)
-                interactText.SetActive(true);
+            bool hasKey = PlayerInventory.instance != null &&
+                          PlayerInventory.instance.HasItem(requiredItemID);
+
+            bool canOpen = !isLocked || hasKey;
+
+            ShowUI(canOpen);
 
             if (Input.GetKeyDown(interactKey))
             {
-                if (!isOpen)
-                    StartCoroutine(RotateDoor(closedRotation, openRotation));
-                else
-                    StartCoroutine(RotateDoor(openRotation, closedRotation));
-
-                isOpen = !isOpen;
+                HandleInteraction(hasKey);
             }
         }
         else
         {
             if (currentDoor == this)
             {
-                if (interactText != null)
-                    interactText.SetActive(false);
-
+                HideUI();
                 currentDoor = null;
             }
         }
+    }
+
+    void HandleInteraction(bool hasKey)
+    {
+        if (isLocked)
+        {
+            if (hasKey)
+            {
+                isLocked = false;
+            }
+            else
+            {
+                ShowUI(false);
+                return;
+            }
+        }
+
+        if (!isOpen)
+            StartCoroutine(RotateDoor(closedRotation, openRotation));
+        else
+            StartCoroutine(RotateDoor(openRotation, closedRotation));
+
+        isOpen = !isOpen;
+    }
+
+    void ShowUI(bool canOpen)
+    {
+        if (openText != null)
+            openText.SetActive(canOpen);
+
+        if (lockedText != null)
+            lockedText.SetActive(!canOpen);
+    }
+
+    void HideUI()
+    {
+        if (openText != null)
+            openText.SetActive(false);
+
+        if (lockedText != null)
+            lockedText.SetActive(false);
     }
 
     IEnumerator RotateDoor(Quaternion from, Quaternion to)
     {
         isAnimating = true;
 
-        if (interactText != null)
-            interactText.SetActive(false);
+        HideUI();
 
         float t = 0f;
 
