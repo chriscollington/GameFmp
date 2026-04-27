@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 public class MainMenuUI : MonoBehaviour
 {
     [Header("Info Panel")]
-    public GameObject infoPanel; // Assign your info canvas/panel here
+    public GameObject infoPanel; 
 
     // PLAY BUTTON
     public void PlayGame()
