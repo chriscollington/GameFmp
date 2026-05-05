@@ -45,7 +45,7 @@ public class KeypadSystem : MonoBehaviour
         {
             interactText.SetActive(false);
 
-            // 🔥 ensure children (Text TMP) also follow state
+            //  ensure children (Text TMP) also follow state
             foreach (Transform child in interactText.transform)
                 child.gameObject.SetActive(false);
         }
@@ -55,14 +55,14 @@ public class KeypadSystem : MonoBehaviour
     {
         if (player == null || cam == null || isOpen) return;
 
-        // 🔥 REAL INTERACTION POINT = collider center
+        //  REAL INTERACTION POINT = collider center
         Collider col = GetComponent<Collider>();
         Vector3 targetPoint = col != null ? col.bounds.center : transform.position;
 
         float distance = Vector3.Distance(player.position, targetPoint);
         bool isNear = distance <= interactDistance;
 
-        // 🔥 FIXED: proper raycast interaction (no angle bugs)
+        //  FIXED: proper raycast interaction (no angle bugs)
         Ray ray = new Ray(cam.transform.position, cam.transform.forward);
 
         bool isLooking =
@@ -90,7 +90,7 @@ public class KeypadSystem : MonoBehaviour
 
         interactText.SetActive(state);
 
-        // 🔥 fix Text not showing bug
+        //  fix Text not showing bug
         foreach (Transform child in interactText.transform)
             child.gameObject.SetActive(state);
     }
