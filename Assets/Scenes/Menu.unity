@@ -379,7 +379,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -92.5, y: 159}
+  m_AnchoredPosition: {x: -123, y: 185}
   m_SizeDelta: {x: 85.0739, y: 213.625}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &221941553
@@ -402,25 +402,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Controls - WASD to move Spacebar to jump C to crouch Shift key to sprint
-    ESC for Menu (You will need to jump up stairs to go up them)
-
-
-    Time will
-    reset in 5 minutes.
-
-
-    Progress is temporary.
-
-    Knowledge is not.
-
-
-    Learn
-    the patterns.
-
-    Find what changes.
-
-    Break the loop.'
+  m_text: "Controls - WASD / Arrow Keys to move Spacebar to jump C to crouch Shift
+    key to sprint ESC for Menu (You will need to jump up stairs to go up them) \n\nTime
+    will reset in 5 minutes.\nThis Game is Not Easy\n\nProgress is temporary.\nKnowledge
+    is not.\n\nLearn the patterns.\nFind what changes.\nBreak the loop."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 79307f501eb267b44be9d7ca808a3dfb, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: 14b25a851a93d6047bc48b8bdadaaff5, type: 2}
@@ -1868,7 +1853,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.6415094, g: 0.6415094, b: 0.6415094, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
