@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(AudioSource))]
 public class CollectibleItemInteract : MonoBehaviour
 {
     [Header("Item Settings")]
@@ -17,6 +18,11 @@ public class CollectibleItemInteract : MonoBehaviour
     public GameObject interactText;
     public GameObject pickupText;
 
+    [Header("Audio")]
+    public AudioClip pickupSound;
+
+    private AudioSource audioSource;
+
     private Transform player;
     private Camera cam;
 
@@ -27,11 +33,16 @@ public class CollectibleItemInteract : MonoBehaviour
 
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+
         player = GameObject.FindGameObjectWithTag("Player")?.transform;
         cam = Camera.main;
 
-        if (interactText != null) interactText.SetActive(false);
-        if (pickupText != null) pickupText.SetActive(false);
+        if (interactText != null)
+            interactText.SetActive(false);
+
+        if (pickupText != null)
+            pickupText.SetActive(false);
 
         renderers = GetComponentsInChildren<Renderer>();
         colliders = GetComponentsInChildren<Collider>();
@@ -39,7 +50,8 @@ public class CollectibleItemInteract : MonoBehaviour
 
     void Update()
     {
-        if (collected || player == null || cam == null) return;
+        if (collected || player == null || cam == null)
+            return;
 
         Vector3 checkPos = transform.position + transform.TransformDirection(interactionOffset);
 
@@ -68,13 +80,22 @@ public class CollectibleItemInteract : MonoBehaviour
     {
         collected = true;
 
-        // inventory
+        // Inventory
         PlayerInventory.instance?.AddItem(itemID);
+
+        // Play pickup sound
+        if (pickupSound != null)
+        {
+            AudioSource.PlayClipAtPoint(
+                pickupSound,
+                transform.position
+            );
+        }
 
         if (interactText != null)
             interactText.SetActive(false);
 
-        //  instant visual hide (no lag)
+        // Instant visual hide
         SetVisible(false);
 
         // UI runs separately
@@ -101,7 +122,7 @@ public class CollectibleItemInteract : MonoBehaviour
 
         pickupText.SetActive(false);
 
-        //  wait 1 frame before destroy (prevents spike)
+        // Wait 1 frame before destroy
         yield return null;
 
         Destroy(gameObject);

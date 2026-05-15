@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(AudioSource))]
 public class DoorController : MonoBehaviour
 {
     [Header("Door Settings")]
@@ -25,8 +26,14 @@ public class DoorController : MonoBehaviour
     public float lookThreshold = 0.7f;
 
     [Header("UI Prompts")]
-    public GameObject openText;    // "Press F to open"
-    public GameObject lockedText;  // "Can't open"
+    public GameObject openText;
+    public GameObject lockedText;
+
+    [Header("Audio")]
+    public AudioClip doorOpenSound;
+    public AudioClip doorCloseSound;
+
+    private AudioSource audioSource;
 
     private static DoorController currentDoor;
 
@@ -39,10 +46,13 @@ public class DoorController : MonoBehaviour
 
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+
         closedRotation = transform.rotation;
         openRotation = transform.rotation * Quaternion.AngleAxis(openAngle, rotationAxis);
 
         GameObject player = GameObject.FindGameObjectWithTag("Player");
+
         if (player != null)
             playerTransform = player.transform;
 
@@ -57,7 +67,8 @@ public class DoorController : MonoBehaviour
 
     void Update()
     {
-        if (playerTransform == null || playerCamera == null) return;
+        if (playerTransform == null || playerCamera == null)
+            return;
 
         Vector3 checkPosition = transform.position + transform.TransformDirection(interactionOffset);
 
@@ -110,11 +121,25 @@ public class DoorController : MonoBehaviour
         }
 
         if (!isOpen)
+        {
+            PlaySound(doorOpenSound);
             StartCoroutine(RotateDoor(closedRotation, openRotation));
+        }
         else
+        {
+            PlaySound(doorCloseSound);
             StartCoroutine(RotateDoor(openRotation, closedRotation));
+        }
 
         isOpen = !isOpen;
+    }
+
+    void PlaySound(AudioClip clip)
+    {
+        if (clip != null)
+        {
+            audioSource.PlayOneShot(clip);
+        }
     }
 
     void ShowUI(bool canOpen)
