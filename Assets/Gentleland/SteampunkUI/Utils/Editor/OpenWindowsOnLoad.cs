@@ -1,6 +1,7 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+
+using UnityEditor;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEditor.Compilation;
 
 // if you want to delete this file delete all Gentleland "Utils" folder 
@@ -12,16 +13,29 @@ namespace Gentleland.Utils.SteampunkUI
     {
         static OpenWindowsOnLoad()
         {
-            PackageSettings settings = AssetDatabase.LoadAssetAtPath<PackageSettings>(PackageSettings.PackageSettingsPath);
+            PackageSettings settings =
+                AssetDatabase.LoadAssetAtPath<PackageSettings>(
+                    PackageSettings.PackageSettingsPath
+                );
+
             if (settings == null)
             {
                 if (!AssetDatabase.IsValidFolder(PackageSettings.PackageSettingsFolderPath))
                 {
-                    AssetDatabase.CreateFolder("Assets",PackageSettings.PackageSettingsFolder);
+                    AssetDatabase.CreateFolder(
+                        "Assets",
+                        PackageSettings.PackageSettingsFolder
+                    );
                 }
+
                 settings = ScriptableObject.CreateInstance<PackageSettings>();
-                AssetDatabase.CreateAsset(settings, PackageSettings.PackageSettingsPath);
+
+                AssetDatabase.CreateAsset(
+                    settings,
+                    PackageSettings.PackageSettingsPath
+                );
             }
+
             if (settings.isFirstTimeUsingTheAsset)
             {
                 EditorApplication.delayCall += WelcomeWindow.OpenWindow;
@@ -29,3 +43,5 @@ namespace Gentleland.Utils.SteampunkUI
         }
     }
 }
+
+#endif
